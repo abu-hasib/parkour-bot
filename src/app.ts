@@ -4,8 +4,6 @@ import {message}  from "telegraf/filters"
 
 const app = express();
 
-console.log(process.env.BOT_TOKEN)
-
 if(process.env.BOT_TOKEN === undefined) {
     throw new TypeError("BOT_TOKEN must be provided!")
 }
