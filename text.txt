@@ -1,0 +1,49 @@
+const cmdList = `
+/start - Start the bot
+/help - Show help
+/post - Post a ⚡snap job
+/jobs - Show all ⚡snap jobs
+`;
+
+bot.start((ctx) => {
+  ctx.reply("Welcome to Parkour");
+  ctx.reply(cmdList);
+});
+bot.hears("start", ({message}) => {
+    const chatId = message.chat.id;
+    const user_id = message.from.id;
+    const name = message.from.first_name;
+    const last_name = message.from.last_name;
+    const username = message.from.username;
+    const user_data = {chatId, user_id, last_name, username};
+    console.log({user_data})
+})
+bot.help((ctx) => ctx.reply("Send me a sticker"));
+bot.on(message("sticker"), (ctx) => ctx.reply("👍"));
+bot.hears("hi", (ctx) => ctx.reply("Hey!!!"));
+bot.command("post", (ctx) => {
+  console.log({ ctx: ctx.message });
+  ctx.reply("Posted");
+});
+bot.command("jobs", (ctx) => {
+  ctx.reply("Show all jobs");
+});
+bot.command("oldschool", (ctx) => ctx.reply("Hello"));
+bot.command("hipster", Telegraf.reply("λ"));
+bot.command("quit", async (ctx) => {
+  // Explicit usage
+  console.log({ ctx });
+  await ctx.telegram.leaveChat(ctx.message.chat.id);
+  // Using context shortcut
+  await ctx.leaveChat();
+});
+bot.on(message("text"), async (ctx) => {
+  // Explicit usage
+  await ctx.telegram.sendMessage(
+    ctx.message.chat.id,
+    `Hello ${ctx.state.role}`
+  );
+
+  // Using context shortcut
+  await ctx.reply(`Hello ${ctx.state.role}`);
+});
