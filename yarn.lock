@@ -652,6 +652,11 @@ type-is@~1.6.18:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
+typegram@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/typegram/-/typegram-5.2.0.tgz#becf45510e54e719857a19de573d236435dc28dc"
+  integrity sha512-QubWrgT+tVPpM3/KkT/Rdd2zTYUwx96hePKBSio8pAWUD847M6W6akZppFs5BKfLtzuHBeTgjps528LJ+H1k+w==
+
 typescript@^5.2.2:
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.2.2.tgz#5ebb5e5a5b75f085f22bc3f8460fba308310fa78"
