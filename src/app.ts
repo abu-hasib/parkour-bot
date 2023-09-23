@@ -76,13 +76,12 @@ const superWizard = new Scenes.WizardScene(
       ctx.scene.session.compensation = parseInt(ctx.update.message.text);
 
     const { title, description, compensation } = ctx.scene.session;
-    const data: Prisma.JobCreateInput = {
-      title,
-      description,
-      compensation,
+    const data: Prisma.UserCreateInput = {
+      email: title,
+      name: description,
     };
     try {
-      await prisma.job.create({
+      await prisma.user.create({
         data,
       });
     } catch (error) {
