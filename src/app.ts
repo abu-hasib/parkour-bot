@@ -126,7 +126,7 @@ bot.command("jobs", async (ctx) => {
   jobs.map((job) => {
     const post = fmt`
 ${bold`${job.title} в ${job.company}`}
-${italic`${job.location}, ${job.years}of experience`}
+${italic`${job.location}, ${job.years}years of experience`}
 ${italic`${job.description}`}
 ${`Salary: ${job.compensation}`}
         `;
