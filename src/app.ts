@@ -151,6 +151,10 @@ bot.start((ctx) => {
   ctx.reply(cmdList);
 });
 
+bot.command("post", (ctx) => {
+  ctx.scene.enter("super-wizard");
+});
+
 bot.command("jobs", async (ctx) => {
   const jobs = await prisma.job.findMany();
   if (jobs.length === 0)
