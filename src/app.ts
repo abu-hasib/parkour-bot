@@ -4,6 +4,12 @@ import { message } from "telegraf/filters";
 import { bold, fmt, italic } from "telegraf/format";
 import jobCreatePrisma from "./utils/db/job/jobCreatePrisma";
 import prisma from "./lib/prisma";
+import OpenAI from "openai";
+import generatePrompt from "./utils/db/generate";
+
+const openai = new OpenAI({
+  apiKey: process.env.GPT_KEY,
+});
 
 const app = express();
 interface MyWizardSession extends Scenes.WizardSessionData {
@@ -12,9 +18,10 @@ interface MyWizardSession extends Scenes.WizardSessionData {
   title: string;
   description: string;
   compensation: number;
-  location: string
-  years: number
-  company: string
+  location: string;
+  years: number;
+  company: string;
+  completion: string;
 }
 
 type MyContext = Scenes.WizardContext<MyWizardSession>;
@@ -52,26 +59,26 @@ const superWizard = new Scenes.WizardScene(
   "super-wizard",
   async (ctx) => {
     await ctx.reply("👀 Great! Let's create your job post.");
-    ctx.reply("What role are you hiring");
+    await ctx.reply("What role are you hiring");
     return ctx.wizard.next();
   },
   async (ctx) => {
     if (ctx.has(message("text"))) {
       ctx.scene.session.title = ctx.update.message.text;
     }
-    ctx.reply("📁Saved, please enter the description for the job");
+    await ctx.reply("📁Saved, please enter the description for the job");
     return ctx.wizard.next();
   },
   async (ctx) => {
     if (ctx.has(message("text")))
       ctx.scene.session.description = ctx.update.message.text;
-    ctx.reply("📁Saved, please enter compensation(💲)");
+    await ctx.reply("📁Saved, please enter compensation(💲)");
     return ctx.wizard.next();
   },
   async (ctx) => {
     if (ctx.has(message("text")))
       ctx.scene.session.compensation = parseInt(ctx.update.message.text);
-    ctx.reply("📁Saved, how many years experience");
+    await ctx.reply("📁Saved, how many years experience");
     return ctx.wizard.next();
   },
   async (ctx) => {
@@ -83,11 +90,37 @@ const superWizard = new Scenes.WizardScene(
   async (ctx) => {
     if (ctx.has(message("text")))
       ctx.scene.session.company = ctx.update.message.text;
-
-    const { title, description, compensation, company, years } = ctx.scene.session;
+    await ctx.reply(
+      'Based on your info,can I show you an improved "description"',
+      Markup.inlineKeyboard([
+        Markup.button.callback("No, I'm OK", "delete"),
+        Markup.button.callback("Show me", "next"),
+      ])
+    );
+    return ctx.wizard.next();
+  },
+  async (ctx) => {
+    const { description, title, years } = ctx.scene.session;
+    const completions = await openai.completions.create({
+      model: "text-davinci-003",
+      prompt: generatePrompt(`${description} ${title} ${years}`),
+      max_tokens: 50,
+    });
+    ctx.scene.session.completion = completions.choices[0].text;
+    console.log({ response: completions.choices[0].text });
+    await ctx.reply(
+      ctx.scene.session.completion,
+      Markup.inlineKeyboard([Markup.button.callback("Use it", "next")])
+    );
+    return ctx.wizard.next();
+  },
+  async (ctx) => {
+    const { title, description, completion, compensation, company, years } =
+      ctx.scene.session;
     try {
-      await jobCreatePrisma(title, description, compensation, company, years);
+      await jobCreatePrisma(title, completion, compensation, company, years);
     } catch (error) {
+      console.error({ error });
       await ctx.reply("We sorry, we could not create your ");
       await ctx.reply("Done");
       return await ctx.scene.leave();
@@ -97,7 +130,7 @@ const superWizard = new Scenes.WizardScene(
       fmt`🎉! Job post successful 🚀, find details:
 
 Title: ${bold`${title}`}
-Description: ${bold`${description}`}
+Description: ${bold`${completion}`}
 Compensation: ${bold`💲${compensation}`}
 Years of experience: ${bold`${years}`}
 Your company🏢 name: ${bold`💲${company}`}
@@ -121,12 +154,14 @@ bot.start((ctx) => {
 bot.command("jobs", async (ctx) => {
   const jobs = await prisma.job.findMany();
   if (jobs.length === 0)
-    ctx.reply("💔 Apologies, we do not have new jobs at the moment, check back.");
+    ctx.reply(
+      "💔 Apologies, we do not have new jobs at the moment, check back."
+    );
 
   jobs.map((job) => {
     const post = fmt`
 ${bold`${job.title} в ${job.company}`}
-${italic`${job.location}, ${job.years}years of experience`}
+${italic`${job.location}, ${job.years} years of experience`}
 ${italic`${job.description}`}
 ${`Salary: ${job.compensation}`}
         `;
