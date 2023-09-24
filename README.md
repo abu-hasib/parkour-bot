@@ -19,6 +19,8 @@
 ## About the Project
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/Izln3MlwBnw/0.jpg)](https://www.youtube.com/watch?v=Izln3MlwBnw)
 
+## Getting Started
+To run the project locally you need a telegram bot token from [Bot father](https://t.me/botfather) and API key from [OpenAI](https://platform.openai.com/)
 
 ## Local Development
 1. Open your terminal (or command prompt) and `Clone` the repository by clicking on the `Code` option on the top left of the repository.
