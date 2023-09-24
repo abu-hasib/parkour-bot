@@ -4,6 +4,7 @@ import { message } from "telegraf/filters";
 import prisma from "./lib/prisma";
 import { Prisma } from "@prisma/client";
 import { bold, fmt } from "telegraf/format";
+import userCreatePrisma from "./utils/db/user/userCreatePrisma";
 
 const app = express();
 interface MyWizardSession extends Scenes.WizardSessionData {
@@ -12,7 +13,6 @@ interface MyWizardSession extends Scenes.WizardSessionData {
   title: string;
   description: string;
   compensation: number;
-  data: {};
 }
 
 type MyContext = Scenes.WizardContext<MyWizardSession>;
@@ -58,10 +58,11 @@ const superWizard = new Scenes.WizardScene(
     return ctx.wizard.next();
   },
   async (ctx) => {
-      if (ctx.has(message("text"))) {
-      while(ctx.update.message.text === "") ctx.reply("Please enter the title of the job post:");
+    if (ctx.has(message("text"))) {
+      while (ctx.update.message.text === "")
+        ctx.reply("Please enter the title of the job post:");
       ctx.scene.session.title = ctx.update.message.text;
-      }
+    }
     ctx.reply("Please enter the description of the job post:");
     return ctx.wizard.next();
   },
@@ -76,26 +77,19 @@ const superWizard = new Scenes.WizardScene(
       ctx.scene.session.compensation = parseInt(ctx.update.message.text);
 
     const { title, description, compensation } = ctx.scene.session;
-    const data: Prisma.UserCreateInput = {
-      email: title,
-      name: description,
-    };
     try {
-      await prisma.user.create({
-        data,
-      });
+      await userCreatePrisma(description, title);
     } catch (error) {
-        await ctx.reply("We sorry, we could not create your ")
-    await ctx.reply("Done");
-    return await ctx.scene.leave();
+      await ctx.reply("We sorry, we could not create your ");
+      await ctx.reply("Done");
+      return await ctx.scene.leave();
     }
-    ctx.scene.session.data = data;
     // const { title, description, compensation } = ctx.scene.session;
     await ctx.reply(
       fmt`🎉! Job post successful 🚀, find details:
 Title: ${bold`${title}`}
 Description: ${bold`${description}`}
-Compensation: ${bold`💲${ compensation}`}
+Compensation: ${bold`💲${compensation}`}
     `,
       keyboard
     );
