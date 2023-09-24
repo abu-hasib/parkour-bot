@@ -8,7 +8,7 @@
   <p align="center">
     Your job bot.
     <br />
-    <a href="https://t.me/parkourai_bot"><strong>Learn more »</strong></a>
+    <a href="https://park-ejsw.onrender.com"><strong>Learn more »</strong></a>
     <br />
     <br />
     <a href="https://t.me/parkourai_bot">Website</a>
