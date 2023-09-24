@@ -11,7 +11,7 @@
     <a href="https://t.me/parkourai_bot"><strong>Learn more »</strong></a>
     <br />
     <br />
-    <a href="https://cubeseed.com.ng">Website</a>
+    <a href="https://t.me/parkourai_bot">Website</a>
   </p>
 
 </p>
