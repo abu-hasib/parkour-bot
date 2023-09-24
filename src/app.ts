@@ -1,10 +1,8 @@
 import express from "express";
 import { Composer, Markup, Scenes, Telegraf, session } from "telegraf";
 import { message } from "telegraf/filters";
-import prisma from "./lib/prisma";
-import { Prisma } from "@prisma/client";
 import { bold, fmt } from "telegraf/format";
-import userCreatePrisma from "./utils/db/user/userCreatePrisma";
+import jobCreatePrisma from "./utils/db/job/jobCreatePrisma";
 
 const app = express();
 interface MyWizardSession extends Scenes.WizardSessionData {
@@ -78,7 +76,7 @@ const superWizard = new Scenes.WizardScene(
 
     const { title, description, compensation } = ctx.scene.session;
     try {
-      await userCreatePrisma(description, title);
+      await jobCreatePrisma(title, description, compensation);
     } catch (error) {
       await ctx.reply("We sorry, we could not create your ");
       await ctx.reply("Done");
@@ -101,6 +99,11 @@ Compensation: ${bold`💲${compensation}`}
 const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN);
 const stage = new Scenes.Stage<MyContext>([superWizard], {
   default: "super-wizard",
+});
+
+bot.start((ctx) => {
+  ctx.reply("Welcome to Parkour");
+  ctx.reply(cmdList);
 });
 bot.use(session());
 bot.use(stage.middleware());
