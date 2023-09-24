@@ -7,4 +7,5 @@ RUN ls src
 RUN cat src/app.ts
 RUN yarn build
 EXPOSE 8080
-CMD [ "node", "dist/server.js" ]
+RUN yarn start
+# CMD [ "node", "dist/server.js" ]

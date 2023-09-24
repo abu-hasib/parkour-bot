@@ -2,10 +2,13 @@
   "name": "parkour",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "build": "dotenv -e .env -- npx tsc",
-    "develop": "DEBUG=express:* dotenv -e .env.development -- npx ts-node-dev --rs --clear --exit-child src/server.ts"
+    "start": "node dist/server.js",
+    "develop": "DEBUG=express:* dotenv -e .env.development -- npx ts-node-dev --rs --clear --exit-child src/server.ts",
+    "studio:develop": "dotenv -e .env.development -- npx prisma studio",
+    "migrate:develop": "dotenv -e .env.development -- npx prisma db push"
   },
   "keywords": [],
   "author": "",
