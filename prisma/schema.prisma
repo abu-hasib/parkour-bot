@@ -31,4 +31,7 @@ model Job {
   title String
   description String
   compensation Int
+  location String?
+  years Int
+  company String
 }

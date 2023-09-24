@@ -1,8 +1,9 @@
 import express from "express";
 import { Composer, Markup, Scenes, Telegraf, session } from "telegraf";
 import { message } from "telegraf/filters";
-import { bold, fmt } from "telegraf/format";
+import { bold, fmt, italic } from "telegraf/format";
 import jobCreatePrisma from "./utils/db/job/jobCreatePrisma";
+import prisma from "./lib/prisma";
 
 const app = express();
 interface MyWizardSession extends Scenes.WizardSessionData {
@@ -11,6 +12,9 @@ interface MyWizardSession extends Scenes.WizardSessionData {
   title: string;
   description: string;
   compensation: number;
+  location: string
+  years: number
+  company: string
 }
 
 type MyContext = Scenes.WizardContext<MyWizardSession>;
@@ -47,36 +51,42 @@ stepHandler.use((ctx) =>
 const superWizard = new Scenes.WizardScene(
   "super-wizard",
   async (ctx) => {
-    await ctx.reply("You can post job by entering the title", keyboard);
-    return ctx.wizard.next();
-  },
-  async (ctx) => {
-    await ctx.reply("Great! Let's create a snap job post.");
-    ctx.reply("Please enter the title of the job post:");
+    await ctx.reply("👀 Great! Let's create your job post.");
+    ctx.reply("What role are you hiring");
     return ctx.wizard.next();
   },
   async (ctx) => {
     if (ctx.has(message("text"))) {
-      while (ctx.update.message.text === "")
-        ctx.reply("Please enter the title of the job post:");
       ctx.scene.session.title = ctx.update.message.text;
     }
-    ctx.reply("Please enter the description of the job post:");
+    ctx.reply("📁Saved, please enter the description for the job");
     return ctx.wizard.next();
   },
   async (ctx) => {
     if (ctx.has(message("text")))
       ctx.scene.session.description = ctx.update.message.text;
-    ctx.reply("Please enter the compensation: (💲)");
+    ctx.reply("📁Saved, please enter compensation(💲)");
     return ctx.wizard.next();
   },
   async (ctx) => {
     if (ctx.has(message("text")))
       ctx.scene.session.compensation = parseInt(ctx.update.message.text);
+    ctx.reply("📁Saved, how many years experience");
+    return ctx.wizard.next();
+  },
+  async (ctx) => {
+    if (ctx.has(message("text")))
+      ctx.scene.session.years = parseInt(ctx.update.message.text);
+    ctx.reply("📁Saved, what is your company called");
+    return ctx.wizard.next();
+  },
+  async (ctx) => {
+    if (ctx.has(message("text")))
+      ctx.scene.session.company = ctx.update.message.text;
 
-    const { title, description, compensation } = ctx.scene.session;
+    const { title, description, compensation, company, years } = ctx.scene.session;
     try {
-      await jobCreatePrisma(title, description, compensation);
+      await jobCreatePrisma(title, description, compensation, company, years);
     } catch (error) {
       await ctx.reply("We sorry, we could not create your ");
       await ctx.reply("Done");
@@ -85,11 +95,13 @@ const superWizard = new Scenes.WizardScene(
     // const { title, description, compensation } = ctx.scene.session;
     await ctx.reply(
       fmt`🎉! Job post successful 🚀, find details:
+
 Title: ${bold`${title}`}
 Description: ${bold`${description}`}
 Compensation: ${bold`💲${compensation}`}
-    `,
-      keyboard
+Years of experience: ${bold`${years}`}
+Your company🏢 name: ${bold`💲${company}`}
+    `
     );
     return await ctx.scene.leave();
   },
@@ -105,6 +117,30 @@ bot.start((ctx) => {
   ctx.reply("Welcome to Parkour");
   ctx.reply(cmdList);
 });
+
+bot.command("jobs", async (ctx) => {
+  const jobs = await prisma.job.findMany();
+  if (jobs.length === 0)
+    ctx.reply("💔 Apologies, we do not have new jobs at the moment, check back.");
+
+  jobs.map((job) => {
+    const post = fmt`
+${bold`${job.title} в ${job.company}`}
+${italic`${job.location}, ${job.years}of experience`}
+${italic`${job.description}`}
+${`Salary: ${job.compensation}`}
+        `;
+    const replyMarkup = Markup.inlineKeyboard([
+      Markup.button.callback("Apply", `apply_${job.id}`),
+    ]);
+    ctx.reply(post, replyMarkup);
+  });
+  bot.action(/^apply_(\d+)$/, (ctx) => {
+    const jobId = ctx.match[1]; // Extract the job ID from the callback data
+    ctx.answerCbQuery("Applied Successfully"); // Respond to the button press
+  });
+});
+
 bot.use(session());
 bot.use(stage.middleware());
 
