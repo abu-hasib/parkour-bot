@@ -17,8 +17,8 @@
 </p>
 
 ## About the Project
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/Izln3MlwBnw/0.jpg)](https://www.youtube.com/watch?v=Izln3MlwBnw)
-
+[<img src="https://img.youtube.com/vi/Izln3MlwBnw/hqdefault.jpg" width="100%"
+/>](https://www.youtube.com/embed/Izln3MlwBnw)
 ## Getting Started
 To run the project locally you need a telegram bot token from [Bot father](https://t.me/botfather) and API key from [OpenAI](https://platform.openai.com/)
 
