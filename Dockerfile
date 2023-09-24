@@ -7,5 +7,5 @@ RUN ls src
 RUN cat src/app.ts
 RUN yarn build
 EXPOSE 8080
-RUN yarn start
-# CMD [ "node", "dist/server.js" ]
+RUN yarn prisma:generate
+CMD [ "node", "dist/server.js" ]
