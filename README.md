@@ -19,6 +19,17 @@
 ## About the Project
 [<img src="https://img.youtube.com/vi/Izln3MlwBnw/hqdefault.jpg" width="100%"
 />](https://www.youtube.com/embed/Izln3MlwBnw)
+
+## Tech Stack
+ * [Typescript](https://www.typescriptlang.org/)
+ * [Node JS](https://nodejs.org/en/docs)
+ * [Express JS](https://expressjs.com/en/guide/routing.html)
+ * Docker
+ * Telegraf
+ * Prisma
+ * OpenAI
+
+
 ## Getting Started
 To run the project locally you need a telegram bot token from [Bot father](https://t.me/botfather) and API key from [OpenAI](https://platform.openai.com/)
 
